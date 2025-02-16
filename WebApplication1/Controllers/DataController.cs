@@ -8,6 +8,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using WebApplication1.Entities;
+using WebApplication1.Entities.Commands;
+using WebApplication1.Entities.Queries;
 using WebApplication1.Utils;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -45,8 +47,9 @@ namespace WebApplication1.Controllers
             serializeOptions.Converters.Add(new DataEntityDtoJsonConverter());
             var DataEntityDtos = JsonSerializer.Deserialize<List<DataEntityDto>>(request, serializeOptions);            
             
+            DataEntityAddCommand command = new DataEntityAddCommand() { DataEntities = DataEntityDtos };
 
-            var result = await _sender.Send(DataEntityDtos, token);
+            await _sender.Send(command, token);
 
             return Ok();
         }
