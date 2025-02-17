@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using WebApplication1.DAL;
 using WebApplication1.Entities;
 using WebApplication1.Entities.Queries;
 
@@ -7,28 +9,23 @@ namespace WebApplication1.Handlers.Queries
 {
     public class DataEntityQueryHandler : IRequestHandler<DataEntityQuery, IReadOnlyCollection<DataEntity>>
     {
+        private readonly WebApplicationContext _context;
+
+        public DataEntityQueryHandler(WebApplicationContext context)
+        {
+            _context = context;
+        }
+
         public async Task<IReadOnlyCollection<DataEntity>> Handle(DataEntityQuery request, CancellationToken cancellationToken)
         {
             var query = GetFilteredQuery(request);
 
-            return query.ToList();
+            return await query.ToListAsync(cancellationToken);
         }
 
         private IQueryable<DataEntity> GetFilteredQuery(DataEntityQuery request)
         {
-            var query = new List<DataEntity> { new DataEntity()
-                {
-                    Id = 1,
-                    Code = 1,
-                    Value = "Value1"
-                },
-                new DataEntity()
-                {
-                    Id = 2,
-                    Code = 5,
-                    Value = "Value2"
-                },
-            };
+            var query = _context.DataEntities;
 
             if (request.Id != null)
             {

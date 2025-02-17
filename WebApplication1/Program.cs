@@ -1,4 +1,7 @@
 using System.Reflection;
+using WebApplication1.DAL;
+using Microsoft.EntityFrameworkCore;
+using WebApplication1.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
+builder.Services.AddDbContext<WebApplicationContext>(
+    (sp, options) =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+
+        options
+            .UseNpgsql(config.GetConnectionString("Default"));
+    });
+
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 var app = builder.Build();
 
