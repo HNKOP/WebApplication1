@@ -25,25 +25,25 @@ namespace WebApplication1.Handlers.Queries
 
         private IQueryable<DataEntity> GetFilteredQuery(DataEntityQuery request)
         {
-            var query = _context.DataEntities;
+            var query = _context.DataEntities.AsQueryable();
 
             if (request.Id != null)
             {
-                query.Where(x => x.Id == request.Id);
+                query = query.Where(x => x.Id == request.Id);
             }
 
             if (request.Code != null)
             {
-                query.Where(x => x.Code == request.Code);
+                query = query.Where(x => x.Code == request.Code);
             }
 
 
-            if (string.IsNullOrEmpty(request.Value))
+            if (!string.IsNullOrEmpty(request.Value))
             {
-                query.Where(x => x.Value.Contains(request.Value));
+                query = query.Where(x => x.Value.Contains(request.Value));
             }
 
-            return query.AsQueryable();
+            return query;
         }
     }
 }

@@ -4,11 +4,11 @@ using WebApplication1.Entities;
 
 namespace WebApplication1.Utils
 {
-    public class DataEntityDtoJsonConverter : JsonConverter<List<DataEntityDto>>
+    public class DataEntityJsonConverter : JsonConverter<List<DataEntity>>
     {
-        public override List<DataEntityDto> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override List<DataEntity> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            List<DataEntityDto?> dataEntities = new List<DataEntityDto?>();
+            List<DataEntity?> dataEntities = new List<DataEntity?>();
 
             while (reader.Read())
             {
@@ -22,13 +22,21 @@ namespace WebApplication1.Utils
                     reader.Read();
                 }
 
-                int.TryParse(reader.GetString(), out int code);
+                if(!int.TryParse(reader.GetString(), out int code))
+                {
+                    throw new JsonException("Value can't be parsed into Int32.");
+                }
 
                 reader.Read();
 
+                if (reader.TokenType != JsonTokenType.String)
+                {
+                    throw new JsonException("Value can't be parsed into String.");
+                }
+
                 var value = reader.GetString();
 
-                DataEntityDto dataEntityDto = new DataEntityDto() { Code = code, Value = value };
+                DataEntity dataEntityDto = new DataEntity() { Code = code, Value = value };
                 dataEntities.Add(dataEntityDto);
 
                 reader.Read();
@@ -43,7 +51,7 @@ namespace WebApplication1.Utils
 
         }
 
-        public override void Write(Utf8JsonWriter writer, List<DataEntityDto> value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, List<DataEntity> value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }

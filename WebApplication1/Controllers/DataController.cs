@@ -39,15 +39,8 @@ namespace WebApplication1.Controllers
         // POST api/<DataController>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] JsonArray request, CancellationToken token)
-        {
-            var serializeOptions = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-            serializeOptions.Converters.Add(new DataEntityDtoJsonConverter());
-            var DataEntityDtos = JsonSerializer.Deserialize<List<DataEntityDto>>(request, serializeOptions);            
-            
-            DataEntityAddCommand command = new DataEntityAddCommand() { DataEntities = DataEntityDtos };
+        {                 
+            DataEntityAddCommand command = new DataEntityAddCommand() { DataEntitiesJsonArray = request };
 
             await _sender.Send(command, token);
 

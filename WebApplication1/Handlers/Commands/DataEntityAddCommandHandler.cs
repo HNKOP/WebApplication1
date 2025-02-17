@@ -1,9 +1,10 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using WebApplication1.DAL;
 using WebApplication1.Entities;
 using WebApplication1.Entities.Commands;
+using WebApplication1.Utils;
 
 namespace WebApplication1.Handlers.Commands
 {
@@ -11,23 +12,23 @@ namespace WebApplication1.Handlers.Commands
     {
         private readonly WebApplicationContext _context;
 
-        private readonly IMapper _mapper;
-
-        public DataEntityAddCommandHandler(WebApplicationContext context, IMapper mapper)
+        public DataEntityAddCommandHandler(WebApplicationContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         public async Task Handle(DataEntityAddCommand request, CancellationToken cancellationToken)
         {
+            var serializeOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            serializeOptions.Converters.Add(new DataEntityJsonConverter());
+            var dataEntities = JsonSerializer.Deserialize<List<DataEntity>>(request.DataEntitiesJsonArray, serializeOptions);
+
             await _context.DataEntities.ExecuteDeleteAsync(cancellationToken);
 
-            var sortedRequest = request.DataEntities?.OrderBy(x => x.Code);
-
-            var result = _mapper.Map<IEnumerable<DataEntityDto>, IEnumerable<DataEntity>>(sortedRequest);
-
-            await _context.DataEntities.AddRangeAsync(result, cancellationToken);
+            await _context.DataEntities.AddRangeAsync(dataEntities.OrderBy(x => x.Code), cancellationToken);
 
             await _context.SaveChangesAsync(cancellationToken);
 

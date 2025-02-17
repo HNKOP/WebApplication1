@@ -23,8 +23,6 @@ builder.Services.AddDbContext<WebApplicationContext>(
             .UseNpgsql(config.GetConnectionString("Default"));
     });
 
-builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
